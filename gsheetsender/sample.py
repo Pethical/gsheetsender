@@ -4,6 +4,7 @@ import sys
 from googleapiclient import discovery
 from httplib2 import Http
 from oauth2client import file, client, tools
+import argparse
 
 __author__ = 'gabor.bereczki'
 __all__ = ['sample_function', ]
@@ -27,22 +28,27 @@ def sample_function(first, second=4):
     10
     """
     return first + second
-DRIVE_SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-
-SHEET_SCOPES = ['https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive"]
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive"]
 
 # The ID and range of a sample spreadsheet.
 RELEASE_SPREADSHEET_ID = '1jyGHvf46TZidQQqPXR5dLCuYWioZsV35B3R_YQXsXas'
 DOMAIN_TASKS_SPREADSHEET_ID = '1v1vNLmwb2vSVWNOXLfpGnTZe-OGrmLoYLRGiykhve60'
 SAMPLE_RANGE_NAME = 'Projects!A1:R'
 
-def list_drive_files(creds_json):
+def list_drive_files():
     store = file.Storage('storage.json')
     creds = store.get()
+    parser = argparse.ArgumentParser(prog='Google sheet email sender',
+                                     description='Tool to send table details from Google Sheet',
+                                     parents=[tools.argparser])
+    parser.add_argument('--credential', type=str, help='Google credential json file for oauth', required=True)
+    parser.add_argument('--range', type=str, help='Range from sheet. example: Sheet1!A1:R.  [sheet]![left]:[right]',
+                        default=SAMPLE_RANGE_NAME)
+    args = parser.parse_args()
     if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets(creds_json, DRIVE_SCOPES)
-        creds = tools.run_flow(flow, store)
+        flow = client.flow_from_clientsecrets('c:\\Users\\gabor.bereczki\\Downloads\\client_secret_bere.json', scope=SCOPES)
+        creds = tools.run_flow(flow, store, flags=args)
     DRIVE = discovery.build('drive', 'v3', http=creds.authorize(Http()))
 
     files = DRIVE.files().list().execute().get('files', [])
@@ -53,7 +59,7 @@ def read_table(creds_json):
     store = file.Storage('storage.json')
     creds = store.get()
     if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets(creds_json, SHEET_SCOPES)
+        flow = client.flow_from_clientsecrets(creds_json, SCOPES)
         creds = tools.run_flow(flow, store)
     service = discovery.build('sheets', 'v4', credentials=creds)
 
@@ -72,9 +78,9 @@ def read_table(creds_json):
             print('%s, %s' % (row[0], row[4]))
 
 if __name__ == '__main__':
-    list_drive_files(sys.argv[1])
+    list_drive_files()
     read_table(sys.argv[1])
 
 
-    import doctest
-    doctest.testmod()
+    # import doctest
+    # doctest.testmod()
