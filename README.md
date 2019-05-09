@@ -2,7 +2,7 @@ GSheet Sender
 ============
 Send google sheet content in mail, based on html email template.
 
-##The project contain sample implementation for
+## The project contain sample implementation for
 - spreadsheet api usage, read content from google spread sheet.
 - gmail api usage, send email by gmail api
 - google api authentication
@@ -10,7 +10,7 @@ Send google sheet content in mail, based on html email template.
 
 The tool is export google sheet content, build and email from template and send them.
 
-##PreReqs
+## PreReqs
 - google-api-python-client
 - google-auth-httplib2
 - google-auth-oauthlib
