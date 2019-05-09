@@ -10,6 +10,9 @@ __all__ = ['GSheetReader', ]
 class GSheetReader:
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive"]
 
+    def __init__(self):
+        self.service = None
+
     def init_service(self, google_auth: GoogleAuth):
         self.service = discovery.build('sheets', 'v4', credentials=google_auth.get_credential())
 

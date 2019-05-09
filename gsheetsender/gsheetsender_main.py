@@ -2,12 +2,14 @@ import argparse
 from gsheetsender.google_auth import GoogleAuth
 from oauth2client import tools
 from gsheetsender.gsheet_reader import GSheetReader
+from gsheetsender.google_mail import GMail
 
 class GSMain:
 
     def __init__(self):
         self.google_auth = None
-        self.sheet_reader = None
+        self.sheet_reader:GSheetReader = None
+        self.mail:GMail = None
         self.args = None
 
     def parse_args(self):
@@ -24,23 +26,27 @@ class GSMain:
 
     def init_google_api(self, oauth_store, oauth_credential):
         self.google_auth = GoogleAuth(oauth_store)
-        self.google_auth.oauth(oauth_credential, GSheetReader.SCOPES, self.args)
+        self.google_auth.oauth(oauth_credential, GSheetReader.SCOPES+GMail.SCOPES, self.args)
         self.sheet_reader = GSheetReader()
+        self.mail = GMail()
 
     def get_table_content(self, sheet_id: str, range: str):
         self.sheet_reader.init_service(self.google_auth)
         return self.sheet_reader.get_values(sheet_id, range)
 
-    def generate_mail_from_teplate(self, temaple_file):
+    def generate_mail_from_template(self, template_file):
         None
 
-    def send_mail(to: str, subject:str, body:str):
-        None
+    def send_mail(self, send_to: str, email_subject:str, email_body:str):
+        self.mail.init_service(self.google_auth)
+        message = self.mail.create_message('gabor.bereczki@icellmobilsoft.hu', send_to, email_subject, email_body)
+        self.mail.send_message('me', message)
 
 if __name__ == '__main__':
 
     gsmain = GSMain()
     args = gsmain.parse_args()
     gsmain.init_google_api(args.oauth_store, args.credential)
+    gsmain.send_mail('gabor.bereczki@icell.hu', 'tttt', 'Hi Dude!')
     print(gsmain.get_table_content(args.sheet, args.range))
 
