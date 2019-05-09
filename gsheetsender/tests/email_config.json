@@ -1,0 +1,6 @@
+{
+	"template_dir": "template",
+	"send_from": "test@test.com",
+	"send_to": "test_to@test.com",
+	"subject": "Test mail"
+}
