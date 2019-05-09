@@ -33,7 +33,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     test_suite='gsheetsender.tests',
-    install_requires=['google-api-python-client', 'google-auth-httplib2', 'google-auth-oauthlib'],
+    install_requires=['google-api-python-client', 'google-auth-httplib2', 'google-auth-oauthlib', 'oauth2client'],
     setup_requires=[],
     classifiers=['Development Status :: 3 - Alpha', 'Operating System :: MacOS :: MacOS X', 'Operating System :: Microsoft :: Windows', 'Operating System :: POSIX :: BSD', 'Operating System :: POSIX :: Linux', 'Operating System :: Unix', 'License :: OSI Approved :: GNU General Public License v2 (GPLv2)', 'Programming Language :: Python :: 3 :: Only'],
 )

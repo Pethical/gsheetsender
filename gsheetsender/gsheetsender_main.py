@@ -16,8 +16,9 @@ class GSMain:
                                          parents=[tools.argparser])
         parser.add_argument('--oauth_store', type=str, help='Google oauth token store json file', required=True)
         parser.add_argument('--credential', type=str, help='Google credential json file for oauth', required=True)
-        parser.add_argument('--sheet', type=str, help='Google sheet id')
-        parser.add_argument('--range', type=str, help='Range from sheet. example: Sheet1!A1:R.  [sheet]![left]:[right]')
+        parser.add_argument('--sheet', type=str, help='Google sheet id', required=True)
+        parser.add_argument('--range', type=str, help='Range from sheet. example: Sheet1!A1:R.  [sheet]![left]:[right]',
+                            required=True)
         self.args = parser.parse_args()
         return self.args
 
