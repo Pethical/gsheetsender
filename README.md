@@ -34,7 +34,7 @@ Sample script
 gsheetsender.py --credential=client_secret.json --oauth_store=storage.json --sheet=sheetlongid --range=Sheet1!A2:P --email_config=email_config.json
 ```
 
-### Parameters
+## Parameters
 ```
   --oauth_store OAUTH_STORE
                         Google oauth token store json file
