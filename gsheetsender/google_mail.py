@@ -4,10 +4,9 @@ from googleapiclient import discovery
 from gsheetsender.google_auth import GoogleAuth
 from email.mime.text import MIMEText
 from email.mime.multipart import  MIMEMultipart
-
 import base64
 from apiclient import errors
-
+import warnings
 
 class GMail:
     SCOPES = ['https://www.googleapis.com/auth/gmail.send', "https://www.googleapis.com/auth/gmail.compose"]
@@ -18,11 +17,8 @@ class GMail:
     def init_service(self, google_auth: GoogleAuth):
         self.service = discovery.build('gmail', 'v1', credentials=google_auth.get_credential())
 
-    def get_labels(self):
-        results = self.service.users().labels().list(userId='me').execute()
-        labels = results.get('labels', [])
-
-    def create_message(self, sender, to, subject, message_text):
+    @staticmethod
+    def create_message(sender, to, subject, message_text):
         """Create a message for an email.
 
         Args:
@@ -42,6 +38,18 @@ class GMail:
         return {'raw': base64.urlsafe_b64encode(message.as_string().encode()).decode()}
 
     def send_message(self, user_id, message):
+        """Send the message email.
+
+        Args:
+        user_id: user_id for GMail api. Special value 'me' when the mail sender is the authenticated user.
+        message: Email object, contain raw mail.
+
+        Returns:
+        An object containing a base64url encoded html email object.
+        """
+        if not self.service:
+            warnings.warn("GMail service not initialized. Call init_service method!")
+            return "GMail service not initialized. Call init_service method!"
         try:
             return self.service.users().messages().send(userId=user_id, body=message).execute()
         except errors.HttpError as error:

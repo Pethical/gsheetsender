@@ -10,7 +10,21 @@ Send google sheet content in mail, based on html email template.
 
 The tool is export google sheet content, build and email from template and send them.
 
-## PreReqs
+## Install
+Local version can be installed running
+```
+sudo python3 setup.py install [--record files.txt]
+```
+
+Local develop version can be uninstalled running
+```
+sudo cat files.txt | sudo xargs rm -rf
+```
+if previously option "--record files.txt" was used at previous installation.
+
+### PreReqs
+The setup will install this modules.
+
 - google-api-python-client
 - google-auth-httplib2
 - google-auth-oauthlib
@@ -29,12 +43,13 @@ Quick guide to use GSuite APIs:
 You have to create (or use an exists) a project and enable google APIs (Google Sheets API, Gmail API) in [Google developer console](https://console.developers.google.com/projectselector2/apis/dashboard)
 and create and download oauth credential json.  
 
+## Usage
 Sample script
 ```
-gsheetsender.py --credential=client_secret.json --oauth_store=storage.json --sheet=sheetlongid --range=Sheet1!A2:P --email_config=email_config.json
+gsheetsender.py --credential=client_secret.json --oauth_store=storage.json --sheet=[sheetlongid] --range=Sheet1!A2:P --email_config=email_config.json
 ```
 
-## Parameters
+### Parameters
 ```
   --oauth_store OAUTH_STORE
                         Google oauth token store json file
