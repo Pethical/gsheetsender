@@ -3,7 +3,8 @@ from __future__ import print_function
 from googleapiclient import discovery
 from gsheetsender.google_auth import GoogleAuth
 from email.mime.text import MIMEText
-from email.mime.multipart import  MIMEMultipart
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 import base64
 from apiclient import errors
 import warnings
@@ -18,7 +19,7 @@ class GMail:
         self.service = discovery.build('gmail', 'v1', credentials=google_auth.get_credential())
 
     @staticmethod
-    def create_message(sender, to, subject, message_text):
+    def create_message(sender, to, subject, message_text, attachment_name=None, attachment_content=None):
         """Create a message for an email.
 
         Args:
@@ -35,6 +36,15 @@ class GMail:
         message['from'] = sender
         message['subject'] = subject
         message.attach(MIMEText(message_text, 'html'))
+        if attachment_name and attachment_content:
+            main_type, sub_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".split('/', 1)
+            att = MIMEApplication(attachment_content.getvalue(), _sub_type=sub_type)
+            # add bytes content
+            # att.set_payload(attachment_content.getvalue())
+            att.add_header('Content-Disposition', 'attachment', filename=attachment_name)
+
+            message.attach(att)
+
         return {'raw': base64.urlsafe_b64encode(message.as_string().encode()).decode()}
 
     def send_message(self, user_id, message):

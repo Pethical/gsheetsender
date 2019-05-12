@@ -87,13 +87,17 @@ This is a json config file contain the parameters to mail sending.
 	"template_dir": "/tmp/template",
 	"send_from": "test@test.com",
 	"send_to": "test_to@test.com",
-	"subject": "Test mail"
+	"subject": "Test mail",
+	"add_attachment": false,
+	"attachment_file_name": "release_plan.xlsx"	
 }
 ```
 - template_dir: The directory contain **mail_template.html**. The tool looking for the **mail_template.html** jinja2 template file in this folder.
 - send_from: **from** email header
 - send_to: **to** email header
 - subject: **subject** email header
+- add_attachment: **logical value**. If true sheet will attached to mail as xlsx document
+- attachment_file_name: **file name** of attachment. Used if add_attachment is true
 
 The email body will generate from template. Template can use the datas read from spreadsheet range.  
 The template can use **values** array variable contain the values.

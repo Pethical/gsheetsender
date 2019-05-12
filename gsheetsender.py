@@ -1,10 +1,10 @@
 import argparse
 import json
-
 from gsheetsender.google_auth import GoogleAuth
 from oauth2client import tools
 from gsheetsender.gsheet_reader import GSheetReader
 from gsheetsender.google_mail import GMail
+from gsheetsender.google_drive import GDrive
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -20,6 +20,7 @@ class GSMain:
         self.google_auth = None
         self.sheet_reader: GSheetReader = GSheetReader()
         self.mail: GMail = GMail()
+        self.drive: GDrive = GDrive()
         self.args = None
 
     def parse_args(self):
@@ -46,7 +47,7 @@ class GSMain:
 
     def init_google_api(self, oauth_store, oauth_credential):
         self.google_auth = GoogleAuth(oauth_store)
-        self.google_auth.oauth(oauth_credential, GSheetReader.SCOPES+GMail.SCOPES, self.args)
+        self.google_auth.oauth(oauth_credential, GSheetReader.SCOPES+GMail.SCOPES+GDrive.SCOPES, self.args)
 
     def get_table_content(self, sheet_id: str, cell_range: str):
         self.sheet_reader.init_service(self.google_auth)
@@ -57,9 +58,17 @@ class GSMain:
         template = j2_env.get_template(template_file)
         return template.render(values=table_content)
 
-    def send_mail(self, send_from: str, send_to: str, email_subject: str, email_body: str):
+    def get_excel_file(self, file_id):
+        self.drive.init_service(self.google_auth)
+        content = self.drive.export_xlsx(file_id)
+        return content
+
+    def send_mail(self, send_from: str, send_to: str, email_subject: str, email_body: str,
+                  attachment_name=None, attachment_content=None):
         self.mail.init_service(self.google_auth)
-        message = self.mail.create_message(send_from, send_to, email_subject, email_body)
+        message = self.mail.create_message(send_from, send_to, email_subject, email_body,
+                                           attachment_name=attachment_name,
+                                           attachment_content=attachment_content)
         self.mail.send_message('me', message)
 
 
@@ -70,7 +79,13 @@ if __name__ == '__main__':
     gsmain.init_google_api(args.oauth_store, args.credential)
     values = gsmain.get_table_content(args.sheet, args.range)
     msg = gsmain.generate_mail_from_template('mail_template.html', values)
+    file_name = None
+    attachment_content = None
+    if "add_attachment" in gsmain.email_config.keys() and gsmain.email_config["add_attachment"]:
+        file_name = gsmain.email_config["attachment_file_name"]
+        attachment_content = gsmain.get_excel_file(args.sheet)
+
     gsmain.send_mail(gsmain.email_config['send_from'],
                      gsmain.email_config['send_to'],
                      gsmain.email_config['subject'],
-                     msg)
+                     msg, file_name, attachment_content)
