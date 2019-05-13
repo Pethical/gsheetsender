@@ -3,8 +3,9 @@ GSheet Sender
 Send google sheet content in mail, based on html email template.
 
 ## The project contain sample implementation for
-- spreadsheet api usage, read content from google spread sheet.
+- google spreadsheet api usage, read content from google spread sheet.
 - gmail api usage, send email by gmail api
+- google drive api usage
 - google api authentication
 - HTML Email message rendering by jinja2 template
 
@@ -36,7 +37,7 @@ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-
 ```
 
 
-### Create Google creditials info
+### Create Google credential info
 Quick guide to use GSuite APIs:
 [Access to GSuite APIs](https://codelabs.developers.google.com/codelabs/gsuite-apis-intro/#5)  
 
