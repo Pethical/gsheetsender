@@ -53,18 +53,49 @@ class GSMain:
         self.sheet_reader.init_service(self.google_auth)
         return self.sheet_reader.get_values(sheet_id, cell_range)
 
-    def generate_mail_from_template(self, template_file, table_content):
+    def generate_mail_from_template(self, template_file, table_content, named_ranges):
         j2_env = Environment(loader=FileSystemLoader(self.email_config['template_dir']), trim_blocks=True)
         template = j2_env.get_template(template_file)
-        return template.render(values=table_content)
+        return template.render(values=table_content, named_ranges=named_ranges)
 
     def get_excel_file(self, file_id):
         self.drive.init_service(self.google_auth)
         content = self.drive.export_xlsx(file_id)
         return content
 
-    def send_mail(self, send_from: str, send_to: str, email_subject: str, email_body: str,
-                  attachment_name=None, attachment_content=None):
+    def get_named_ranges_values(self, named_ranges_option: str):
+        ranges = named_ranges_option.split(',')
+        range_value_dic = dict()
+        for range in ranges:
+            key, range_value = range.split('=')
+            range_value_dic[key] = self.get_table_content(args.sheet, range_value)
+        return range_value_dic
+
+
+    def send_mail(self, email_config: dict):
+        values = self.get_table_content(args.sheet, self.args.range)
+        named_ranges = dict()
+        if "named_ranges" in email_config.keys():
+            named_ranges = self.get_named_ranges_values(email_config["named_ranges"])
+
+        # generate email body from template
+        msg = self.generate_mail_from_template('mail_template.html', table_content=values, named_ranges=named_ranges)
+
+        # build email
+        file_name = None
+        attachment_content = None
+
+        if "add_attachment" in email_config.keys() and email_config["add_attachment"]:
+            file_name = email_config["attachment_file_name"]
+            attachment_content = self.get_excel_file(args.sheet)
+
+        self._send_mail(email_config['send_from'],
+                        email_config['send_to'],
+                        email_config['subject'],
+                        msg, file_name, attachment_content)
+
+    def _send_mail(self, send_from: str, send_to: str, email_subject: str, email_body: str,
+                   attachment_name=None, attachment_content=None):
         self.mail.init_service(self.google_auth)
         message = self.mail.create_message(send_from, send_to, email_subject, email_body,
                                            attachment_name=attachment_name,
@@ -77,15 +108,4 @@ if __name__ == '__main__':
     gsmain = GSMain()
     args = gsmain.parse_args()
     gsmain.init_google_api(args.oauth_store, args.credential)
-    values = gsmain.get_table_content(args.sheet, args.range)
-    msg = gsmain.generate_mail_from_template('mail_template.html', values)
-    file_name = None
-    attachment_content = None
-    if "add_attachment" in gsmain.email_config.keys() and gsmain.email_config["add_attachment"]:
-        file_name = gsmain.email_config["attachment_file_name"]
-        attachment_content = gsmain.get_excel_file(args.sheet)
-
-    gsmain.send_mail(gsmain.email_config['send_from'],
-                     gsmain.email_config['send_to'],
-                     gsmain.email_config['subject'],
-                     msg, file_name, attachment_content)
+    gsmain.send_mail(gsmain.email_config)

@@ -2,5 +2,6 @@
 	"template_dir": "template",
 	"send_from": "test@test.com",
 	"send_to": "test_to@test.com",
-	"subject": "Test mail"
+	"subject": "Test mail",
+	"named_ranges": "release_table=Projects!A1:R"
 }
