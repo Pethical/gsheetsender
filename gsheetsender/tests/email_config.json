@@ -4,5 +4,5 @@
 	"send_to": "test_to@test.com",
 	"subject": "Test mail",
 	"named_ranges": "release_table=Projects!A1:R",
-	"cell_values": "Example!K3"
+	"cell_values": "example_cell=Example!K3"
 }
