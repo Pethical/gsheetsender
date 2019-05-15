@@ -90,20 +90,25 @@ This is a json config file contain the parameters to mail sending.
 	"send_to": "test_to@test.com",
 	"subject": "Test mail",
 	"add_attachment": false,
-	"attachment_file_name": "release_plan.xlsx"	
+	"attachment_file_name": "release_plan.xlsx",
+	"named_ranges": "release_table=Projects!A2:D4",
+	"cell_values": "example_cell=Example!K3"	
 }
 ```
 - template_dir: The directory contain **mail_template.html**. The tool looking for the **mail_template.html** jinja2 template file in this folder.
 - send_from: **from** email header
-- send_to: **to** email header
+- send_to: **to** email header. More mail address can add with , separator.
 - subject: **subject** email header
 - add_attachment: **logical value**. If true sheet will attached to mail as xlsx document
 - attachment_file_name: **file name** of attachment. Used if add_attachment is true
+- named_ranges: range list with name. Can use this ranges from template. Syntax: [name]=[sheet]![left/top corner]:[right/bottom corner]. More range can add with , separator.
+- cell_values: Cell list with name. Syntax: [name]=[sheet]![cell]. More cell can add with , separator.
+
 
 The email body will generate from template. Template can use the datas read from spreadsheet range.  
 The template can use **values** array variable contain the values.
 
-**template sample  detail** 
+**template sample detail** 
 ```
 {% for value in values %}
  <tr>
@@ -112,4 +117,54 @@ The template can use **values** array variable contain the values.
   <td>{{ value[2] }}</td>
  </tr>
 {% endfor %}
+```
+
+**named_range usage sample**  
+sample config in json:
+	"named_ranges": "release_table=Projects!A2:D4,other_table=OtherSheet!C3:G",
+
+Can refer to this values from template under the named_ranges template variable.
+In this sample the template can access the values as **named_ranges**.release_table and **named_ranges**.other_table.  
+"release_table" and "other_table" are the names of the ranges defined in named_ranges option.
+
+Use this range values from template
+```
+<table>
+{% for value in named_ranges.release_table %}
+  <tr>
+  <td>{{ value[0] }}</td>
+  <td>{{ value[1] }}</td>
+  <td>{{ value[2] }}</td>
+ </tr>
+{% endfor %}
+</table>
+Some static text in template... :)
+----------
+<table>
+{% for value in named_ranges.other_table %}
+  <tr>
+  <td>{{ value[0] }}</td>
+  <td>{{ value[1] }}</td>
+  <td>{{ value[2] }}</td>
+ </tr>
+{% endfor %}
+</table>
+```
+
+**cell_values usage sample**  
+sample config in json:
+	"cell_values": "example_cell=Projects!A2,other_cell=OtherSheet!C3",
+
+Can refer to this values from template under the cell_values template variable.
+In this sample the template can access the values as **cell_values**.example_cell and **cell_values**.other_cell.  
+"example_cell" and "other_cell" are the names of the cells defined in cell_values option.
+
+Use this cell values from template
+```
+<p>Example cell value:</p>
+<p>{{cell_values.example_cell}}</p>
+<br>
+<p>And the other cell value:</p>
+<p>{{cell_values.other_cell}}</p>
+
 ```
